@@ -2,6 +2,7 @@
 # # vi: set ft=ruby :
 
 VAGRANTFILE_API_VERSION = "2"
+CLOUD_CONFIG_PATH = File.join(File.dirname(__FILE__), "user-data")
 
 num_nodes = 2
 subnet = "192.168.9"
@@ -18,7 +19,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.cache.scope = :box
   end
 
-  config.vm.box = "centos/7"
+  config.vm.box = "coreos-stable"
+  config.vm.box_url = "https://storage.googleapis.com/stable.release.core-os.net/amd64-usr/current/coreos_production_vagrant.json"
 
   config.ssh.insert_key = false
   
@@ -45,6 +47,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
-#  config.vm.provision :shell, path: "bootstrap.sh"
-  
+  if File.exist?(CLOUD_CONFIG_PATH)
+    config.vm.provision :file, :source => "#{CLOUD_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
+    config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
+  end
+
 end
