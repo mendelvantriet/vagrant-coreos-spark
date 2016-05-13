@@ -23,6 +23,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box_url = "https://storage.googleapis.com/stable.release.core-os.net/amd64-usr/current/coreos_production_vagrant.json"
 
   config.ssh.insert_key = false
+  config.vm.synced_folder "synced_folder", "/home/core/share", id: "core", :mount_options => ['nolock,vers=3,udp']
   
   config.vm.provider :virtualbox do |v|
     v.check_guest_additions = false

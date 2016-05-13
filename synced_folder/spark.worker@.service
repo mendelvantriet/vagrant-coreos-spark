@@ -1,0 +1,24 @@
+[Unit]
+Description=Spark Worker
+After=docker.service etcd2.service
+Requires=docker.service etcd2.service
+
+[Service]
+TimeoutStartSec=0
+EnvironmentFile=/etc/environment
+
+ExecStartPre=-/usr/bin/docker kill spark-worker-%i
+ExecStartPre=-/usr/bin/docker rm spark-worker-%i
+ExecStartPre=/bin/bash -c "/usr/bin/docker load < /home/core/share/spark.docker.tar.gz"
+
+ExecStart=/usr/bin/bash -c "\
+MASTER_IP=$(/usr/bin/etcdctl get /services/spark/master-ip); \
+/usr/bin/docker run --name spark-worker-%i \
+-p ${DEFAULT_IPV4}:8081:8081 \
+-p ${DEFAULT_IPV4}:7001-7006:7001-7006 \
+vantriet/spark org.apache.spark.deploy.worker.Worker spark://$MASTER_IP:7077;"
+
+ExecStop=/usr/bin/docker stop spark-worker-%i
+
+[X-Fleet]
+Conflicts=spark.worker@*.service

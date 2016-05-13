@@ -1,2 +1,3 @@
 .vagrant/
 user-data
+synced_folder/spark.docker.tar.gz

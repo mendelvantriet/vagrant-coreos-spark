@@ -1,0 +1,19 @@
+[Unit]
+Description=Spark Master
+After=docker.service etcd2.service
+Requires=docker.service etcd2.service
+
+[Service]
+TimeoutStartSec=0
+EnvironmentFile=/etc/environment
+
+ExecStartPre=-/usr/bin/docker kill spark-master
+ExecStartPre=-/usr/bin/docker rm spark-master
+ExecStartPre=/bin/bash -c "/usr/bin/docker load < /home/core/share/spark.docker.tar.gz"
+ExecStartPre=/bin/bash -c "IP=$(ifconfig eth1 | awk '/\<inet\>/ { print $2}'); \
+/usr/bin/etcdctl set /services/spark/master-ip $IP"
+
+ExecStart=/usr/bin/docker run --name spark-master -p 7077:7077 -p 8080:8080 vantriet/spark
+
+ExecStop=/usr/bin/docker stop spark-master
+ExecStopPost=/usr/bin/etcdctl rm /services/spark/master-ip
