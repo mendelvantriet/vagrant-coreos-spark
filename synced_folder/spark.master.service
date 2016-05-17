@@ -1,11 +1,12 @@
 [Unit]
 Description=Spark Master
-After=docker.service etcd2.service
-Requires=docker.service etcd2.service
+After=docker.service etcd2.service flanneld.service
+Requires=docker.service etcd2.service flanneld.service
 
 [Service]
 TimeoutStartSec=0
 EnvironmentFile=/etc/environment
+Restart=always|on-failure # needed for flanneld
 
 ExecStartPre=-/usr/bin/docker kill spark-master
 ExecStartPre=-/usr/bin/docker rm spark-master

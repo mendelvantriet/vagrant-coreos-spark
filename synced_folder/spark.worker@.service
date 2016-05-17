@@ -1,11 +1,12 @@
 [Unit]
 Description=Spark Worker
-After=docker.service etcd2.service
-Requires=docker.service etcd2.service
+After=docker.service etcd2.service flanneld.service
+Requires=docker.service etcd2.service flanneld.service
 
 [Service]
 TimeoutStartSec=0
 EnvironmentFile=/etc/environment
+Restart=always|on-failure # needed for flanneld
 
 ExecStartPre=-/usr/bin/docker kill spark-worker-%i
 ExecStartPre=-/usr/bin/docker rm spark-worker-%i
